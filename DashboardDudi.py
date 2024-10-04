@@ -10,6 +10,8 @@ import seaborn as sns
 import streamlit as st
 from babel.numbers import format_currency
 import geopandas as gpd
+import os
+os.environ['SHAPE_RESTORE_SHX'] = 'YES'
 
 sns.set(style='dark')
 
@@ -378,7 +380,7 @@ gdf = gpd.GeoDataFrame(merged_data, geometry=gpd.points_from_xy(merged_data['geo
 plt.figure(figsize=(16, 12))  
 
 # Mengambil data peta dunia dari file shapefile 
-world = gpd.read_file('C:/Users/hp/ne_110m_admin_0_countries.shp')
+world = gpd.read_file('https://raw.githubusercontent.com/dudinurdiyans/ProjectDicodingDudi/main/All%20Data/ne_110m_admin_0_countries.shp')
 
 # Membuat plot
 ax = world.plot(color='white', edgecolor='black')
