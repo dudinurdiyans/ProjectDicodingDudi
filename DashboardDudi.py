@@ -290,8 +290,7 @@ with col2:
      plt.pie(order_status_counts, labels=None, startangle=140, colors=sns.color_palette("Set2"))
 
 # Menambahkan legenda 
-    plt.legend(
-        labels=[f'{count} ({percentage:.1f}%)' for count, percentage in zip(order_status_counts, order_status_percentage)],
+     plt.legend(labels=[f'{count} ({percentage:.1f}%)' for count, percentage in zip(order_status_counts, order_status_percentage)],
         title="Status Pesanan",
         loc="best"
 )
