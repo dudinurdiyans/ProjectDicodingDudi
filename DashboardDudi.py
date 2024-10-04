@@ -255,22 +255,22 @@ st.subheader("Customer Detail")
 col1, col2 = st.columns(2)
 with col1:
     # Menghitung jumlah setiap jenis pembayaran
-payment_counts = orders_payments['payment_type'].value_counts()
+     payment_counts = orders_payments['payment_type'].value_counts()
 
 # Menampilkan persentase setiap jenis pembayaran
-payment_percentage = (payment_counts / payment_counts.sum()) * 100
-print("Persentase setiap jenis pembayaran:")
-print(payment_percentage)
+    payment_percentage = (payment_counts / payment_counts.sum()) * 100
+    print("Persentase setiap jenis pembayaran:")
+    print(payment_percentage)
 
 # Membuat pie chart 
-plt.figure(figsize=(10, 6))
-plt.pie(payment_counts, labels=None, startangle=140, colors=sns.color_palette("Set2"))
+    plt.figure(figsize=(10, 6))
+    plt.pie(payment_counts, labels=None, startangle=140, colors=sns.color_palette("Set2"))
 
 # Menambahkan legenda 
-plt.legend(
-    labels=[f'{count} ({percentage:.1f}%)' for count, percentage in zip(payment_counts, payment_percentage)],
-    title="Jenis Pembayaran",
-    loc="best"
+    plt.legend(
+        labels=[f'{count} ({percentage:.1f}%)' for count, percentage in zip(payment_counts, payment_percentage)],
+        title="Jenis Pembayaran",
+        loc="best"
 )
 
 plt.title("Perbandingan Jenis Pembayaran")
@@ -279,22 +279,22 @@ plt.show()
 
 with col2:
     # Menghitung jumlah setiap status pesanan
-order_status_counts = orders_items['order_status'].value_counts()
+     order_status_counts = orders_items['order_status'].value_counts()
 
 # Menampilkan persentase setiap status pesanan
-order_status_percentage = (order_status_counts / order_status_counts.sum()) * 100
-print("Persentase setiap status pesanan:")
-print(order_status_percentage)
+     order_status_percentage = (order_status_counts / order_status_counts.sum()) * 100
+     print("Persentase setiap status pesanan:")
+     print(order_status_percentage)
 
 # Membuat pie chart
-plt.figure(figsize=(10, 6))
-plt.pie(order_status_counts, labels=None, startangle=140, colors=sns.color_palette("Set2"))
+     plt.figure(figsize=(10, 6))
+     plt.pie(order_status_counts, labels=None, startangle=140, colors=sns.color_palette("Set2"))
 
 # Menambahkan legenda 
-plt.legend(
-    labels=[f'{count} ({percentage:.1f}%)' for count, percentage in zip(order_status_counts, order_status_percentage)],
-    title="Status Pesanan",
-    loc="best"
+    plt.legend(
+        labels=[f'{count} ({percentage:.1f}%)' for count, percentage in zip(order_status_counts, order_status_percentage)],
+        title="Status Pesanan",
+        loc="best"
 )
 
 plt.title("Perbandingan Status Pesanan")
