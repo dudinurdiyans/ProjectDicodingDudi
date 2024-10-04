@@ -267,8 +267,7 @@ with col1:
     plt.pie(payment_counts, labels=None, startangle=140, colors=sns.color_palette("Set2"))
 
 # Menambahkan legenda 
-plt.legend(
-    labels=[f'{count} ({percentage:.1f}%)' for count, percentage in zip(payment_counts, payment_percentage)],
+    plt.legend(labels=[f'{count} ({percentage:.1f}%)' for count, percentage in zip(payment_counts, payment_percentage)],
     title="Jenis Pembayaran",
     loc="best"
 )
