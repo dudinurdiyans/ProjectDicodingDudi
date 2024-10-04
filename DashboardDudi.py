@@ -46,7 +46,7 @@ def create_bycity_df(df):
         "customer_id": "customer_count"
     }, inplace=True)
     
-    return bystate_df
+    return bycity_df
 
 
 # In[ ]:
