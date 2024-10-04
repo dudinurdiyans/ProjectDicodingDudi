@@ -122,7 +122,7 @@ main_df = all_df[(all_df["order_purchase_timestamp"] >= str(start_date)) &
 monthly_orders_df = create_monthly_orders_df(main_df)
 sum_order_items_df = create_sum_order_items_df(main_df)
 bycity_df = create_bycity_df(main_df)
-bypayment_type_df = create_by_payment_type_df(main_df)
+bypayment_type_df = create_bypayment_type_df(main_df)
 byorderstatus_df = create_byorderstatus_df(main_df)
 
 
