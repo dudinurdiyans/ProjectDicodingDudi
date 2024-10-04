@@ -11,8 +11,33 @@ import streamlit as st
 from babel.numbers import format_currency
 sns.set(style='dark')
 
-
-# In[2]:
+# Call Data And Cleaning
+data_customers = pd.read_csv('https://github.com/dudinurdiyans/ProjectDicodingDudi/blob/main/All%20Data/customers_dataset.csv?raw=true')
+data_geolocations = pd.read_csv('https://github.com/dudinurdiyans/ProjectDicodingDudi/blob/main/All%20Data/geolocation_dataset.csv?raw=true')
+data_order_items = pd.read_csv('https://github.com/dudinurdiyans/ProjectDicodingDudi/blob/main/All%20Data/order_items_dataset.csv?raw=true')
+data_order_payments = pd.read_csv('https://github.com/dudinurdiyans/ProjectDicodingDudi/blob/main/All%20Data/order_payments_dataset.csv?raw=true')
+data_order_reviews = pd.read_csv('https://github.com/dudinurdiyans/ProjectDicodingDudi/blob/main/All%20Data/order_reviews_dataset.csv?raw=true')
+data_orders = pd.read_csv('https://github.com/dudinurdiyans/ProjectDicodingDudi/blob/main/All%20Data/orders_dataset.csv?raw=true')
+data_product_category_name_translation = pd.read_csv('https://github.com/dudinurdiyans/ProjectDicodingDudi/blob/main/All%20Data/product_category_name_translation.csv?raw=true')
+data_products = pd.read_csv('https://github.com/dudinurdiyans/ProjectDicodingDudi/blob/main/All%20Data/products_dataset.csv?raw=true')
+data_sellers = pd.read_csv('https://github.com/dudinurdiyans/ProjectDicodingDudi/blob/main/All%20Data/sellers_dataset.csv?raw=true')
+# Mengganti nilai null dengan "tidak mencantumkan"
+data_order_reviews['review_comment_title'] = data_order_reviews['review_comment_title'].fillna('tidak mencantumkan')
+data_order_reviews['review_comment_message'] = data_order_reviews['review_comment_message'].fillna('tidak mencantumkan')
+# Mengganti nilai null dengan "data tidak tersedia"
+data_orders['order_approved_at'] = data_orders['order_approved_at'].fillna('data tidak tersedia')
+data_orders['order_delivered_carrier_date'] = data_orders['order_delivered_carrier_date'].fillna('data tidak tersedia')
+data_orders['order_delivered_customer_date'] = data_orders['order_delivered_customer_date'].fillna('data tidak tersedia')
+# Mengganti nilai null dengan "tidak ada data"
+data_products['product_category_name'] = data_products['product_category_name'].fillna('tidak ada data')
+data_products['product_name_lenght'] = data_products['product_name_lenght'].fillna('tidak ada data')
+data_products['product_description_lenght'] = data_products['product_description_lenght'].fillna('tidak ada data')
+data_products['product_photos_qty'] = pd.to_numeric(data_products['product_photos_qty'], errors='coerce')
+data_products['product_photos_qty'].fillna(0, inplace=True)
+data_products['product_weight_g'] = data_products['product_weight_g'].fillna('tidak ada data')
+data_products['product_length_cm'] = data_products['product_length_cm'].fillna('tidak ada data')
+data_products['product_height_cm'] = data_products['product_height_cm'].fillna('tidak ada data')
+data_products['product_width_cm'] = data_products['product_width_cm'].fillna('tidak ada data')
 
 
 def create_monthly_orders_df(df):
@@ -32,10 +57,20 @@ def create_monthly_orders_df(df):
 # In[ ]:
 
 
-def create_sum_order_items_df(df):
-    sum_order_items_df = df.groupby("product_category_name").product_photos_qty.sum().sort_values(ascending=False).reset_index()
+def create_sum_order_items_df(start_date,end_date):
+    # Ensure that 'order_purchase_timestamp' is in datetime format
+    data_orders['order_purchase_timestamp'] = pd.to_datetime(data_orders['order_purchase_timestamp'])
+    
+    # Filter orders by start and end date
+    filtered_orders = data_orders[(data_orders['order_purchase_timestamp'] >= start_date) & 
+                                  (data_orders['order_purchase_timestamp'] <= end_date)]
+    
+    # Merge filtered orders with order items and product data
+    items = pd.merge(filtered_orders, data_order_items, on="order_id")
+    items_products = pd.merge(items, data_products, on="product_id")
+    items_products_filtered = items_products[items_products['product_category_name'] != 'tidak ada data']
+    sum_order_items_df = items_products_filtered.groupby("product_category_name").product_photos_qty.sum().sort_values(ascending=False).reset_index()
     return sum_order_items_df
-
 
 # In[ ]:
 
@@ -120,7 +155,7 @@ main_df = all_df[(all_df["order_purchase_timestamp"] >= str(start_date)) &
 
 
 monthly_orders_df = create_monthly_orders_df(main_df)
-sum_order_items_df = create_sum_order_items_df(main_df)
+sum_order_items_df = create_sum_order_items_df(str(start_date),str(end_date))
 bycity_df = create_bycity_df(main_df)
 bypayment_type_df = create_by_payment_type_df(main_df)
 byorderstatus_df = create_byorderstatus_df(main_df)
@@ -158,24 +193,24 @@ ax.tick_params(axis='x', labelsize=15)
  
 st.pyplot(fig)
 
-# In[3]:
-
-
+# Call the function to get the DataFrame
+sum_order_items_df = create_sum_order_items_df(str(start_date),str(end_date))
+# Plot Best & Worst Performing Product
 st.subheader("Best & Worst Performing Product")
 fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(35, 15))
- 
+
 colors = ["#000000", "#C0C0C0", "#C0C0C0", "#C0C0C0", "#C0C0C0"]
- 
-sns.barplot(x="product_photos_qty", y="product_category_name", data=create_sum_order_items_df.head(5), palette=colors, ax=ax[0])
+
+# Best sales product category plot
+sns.barplot(x="product_photos_qty", y="product_category_name", data=sum_order_items_df.head(5), palette=colors, ax=ax[0])
 ax[0].set_ylabel(None)
 ax[0].set_xlabel("Number of Sales", fontsize=30)
 ax[0].set_title("Best Sales Product Category", loc="center", fontsize=50)
 ax[0].tick_params(axis='y', labelsize=35)
 ax[0].tick_params(axis='x', labelsize=30)
 
-# Plot kedua
-
-sns.barplot(x="product_photos_qty", y="product_category_name", data=create_sum_order_items_df.sort_values(by="product_photos_qty", ascending=True).head(5), palette=colors, ax=ax[1])
+# Worst sales product category plot
+sns.barplot(x="product_photos_qty", y="product_category_name", data=sum_order_items_df.sort_values(by="product_photos_qty", ascending=True).head(5), palette=colors, ax=ax[1])
 ax[1].set_ylabel(None)
 ax[1].set_xlabel("Number of Sales", fontsize=30)
 ax[1].invert_xaxis()
@@ -184,8 +219,10 @@ ax[1].yaxis.tick_right()
 ax[1].set_title("Worst Sales Product Category", loc="center", fontsize=50)
 ax[1].tick_params(axis='y', labelsize=35)
 ax[1].tick_params(axis='x', labelsize=30)
- 
+
+# Display the plot
 st.pyplot(fig)
+
 
 # In[4]:
 
@@ -194,6 +231,14 @@ st.subheader("Customer Detail")
 col1, col2 = st.columns(2)
 with col1:
     # Menghitung jumlah setiap jenis pembayaran
+    # Ensure that 'order_purchase_timestamp' is in datetime format
+    data_orders['order_purchase_timestamp'] = pd.to_datetime(data_orders['order_purchase_timestamp'])
+    
+    # Filter orders by start and end date
+    filtered_orders = data_orders[(data_orders['order_purchase_timestamp'] >= str(start_date)) & 
+                                  (data_orders['order_purchase_timestamp'] <= str(end_date))]
+    orders_payments = pd.merge(data_order_payments, filtered_orders, on="order_id")
+
     payment_counts = orders_payments['payment_type'].value_counts()
 
 # Menampilkan persentase setiap jenis pembayaran
@@ -206,35 +251,51 @@ with col1:
     plt.pie(payment_counts, labels=None, startangle=140, colors=sns.color_palette("Set2"))
 
 # Menambahkan legenda 
-    plt.legend(labels=[f'{count} ({percentage:.1f}%)' for count, percentage in zip(payment_counts, payment_percentage)],
+    plt.legend(labels=[f'{status}: {count} ({percentage:.1f}%)' for status, count, percentage in zip(payment_counts.index, payment_counts, payment_percentage)],
     title="Jenis Pembayaran",
     loc="best"
 )
+    plt.title("Jenis Pembayaran")
 
-plt.title("Perbandingan Jenis Pembayaran")
-st.pyplot(plt)
+
+    st.pyplot(plt)
 
 with col2:
     # Menghitung jumlah setiap status pesanan
-     order_status_counts = orders_items['order_status'].value_counts()
+    # Ensure that 'order_purchase_timestamp' is in datetime format
+    data_orders['order_purchase_timestamp'] = pd.to_datetime(data_orders['order_purchase_timestamp'])
+    
+    # Filter orders by start and end date
+    filtered_orders = data_orders[(data_orders['order_purchase_timestamp'] >= str(start_date)) & 
+                                  (data_orders['order_purchase_timestamp'] <= str(end_date))]
+    orders_items = pd.merge(filtered_orders, data_order_items, on="order_id")
+    
+    order_status_counts = orders_items['order_status'].value_counts()
 
-# Menampilkan persentase setiap status pesanan
-     order_status_percentage = (order_status_counts / order_status_counts.sum()) * 100
-     print("Persentase setiap status pesanan:")
-     print(order_status_percentage)
+    # Menampilkan persentase setiap status pesanan
+    order_status_percentage = (order_status_counts / order_status_counts.sum()) * 100
+    print("Persentase setiap status pesanan:")
+    print(order_status_percentage)
 
-# Membuat pie chart
-     plt.figure(figsize=(10, 6))
-     plt.pie(order_status_counts, labels=None, startangle=140, colors=sns.color_palette("Set2"))
+    # Membuat pie chart
+    plt.figure(figsize=(10, 6))
+    
+    # Membuat pie chart dengan label nama status pesanan
+    plt.pie(order_status_counts, 
+            labels=None,
+            startangle=140, 
+            colors=sns.color_palette("Set2"), 
+            )
 
-# Menambahkan legenda 
-     plt.legend(labels=[f'{count} ({percentage:.1f}%)' for count, percentage in zip(order_status_counts, order_status_percentage)],
-        title="Status Pesanan",
-        loc="best"
-)
+    # Menambahkan legenda dengan status pesanan, jumlah, dan persentase
+    plt.legend(labels=[f'{status}: {count} ({percentage:.1f}%)' for status, count, percentage in zip(order_status_counts.index, order_status_counts, order_status_percentage)],
+               title="Status Pesanan",
+               loc="best")
 
-plt.title("Perbandingan Status Pesanan")
-st.pyplot(plt)
+
+
+    plt.title("Perbandingan Status Pesanan")
+    st.pyplot(plt)
 
 # Menghitung jumlah pelanggan per kota
 customer_city_counts = data_customers['customer_city'].value_counts()
@@ -258,11 +319,11 @@ plt.legend(
 
 plt.title("Distribusi Customers Berdasarkan 5 Kota Teratas")
 plt.axis('equal')  
-plt.show()
+st.pyplot(plt)
 
 
 st.caption('Copyright (c) Dudee 2024. All rights reserved.')
-dataset_df.to_csv("all_data.csv", index=False)
+# dataset_df.to_csv("all_data.csv", index=False)
 # In[ ]:
 
 
