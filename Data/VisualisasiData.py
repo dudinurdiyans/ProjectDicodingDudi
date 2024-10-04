@@ -51,7 +51,7 @@ def create_analysis_rfm(df):
     
     return analysis_rfm
 
-dataset_df = pd.read_csv("https://raw.githubusercontent.com/ryanfa03/RyanFerdinandAndyson_ProyekAnalisisData/refs/heads/main/dashboard/all_data.csv")
+dataset_df = pd.read_csv("https://raw.githubusercontent.com/dudinurdiyans/ProjectDicodingDudi/refs/heads/main/dashboard/all_data.csv")
 
 datetime_columns = ["order_purchase_timestamp", "order_estimated_delivery_date"]
 dataset_df.sort_values(by="order_purchase_timestamp", inplace=True)
