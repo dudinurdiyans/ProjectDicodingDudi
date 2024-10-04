@@ -112,8 +112,8 @@ with st.sidebar:
 # In[ ]:
 
 
-main_df = all_df[(all_df["order_date"] >= str(start_date)) & 
-                (all_df["order_date"] <= str(end_date))]
+main_df = all_df[(all_df["order_delivered_carrier_date"] >= str(start_date)) & 
+                (all_df["order_delivered_customer_date"] <= str(end_date))]
 
 
 # In[ ]:
