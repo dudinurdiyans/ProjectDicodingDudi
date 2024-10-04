@@ -52,7 +52,7 @@ def create_bycity_df(df):
 # In[ ]:
 
 
-def create_bypayment_type_df(df):
+def create_by_payment_type_df(df):
     bypayment_type_df = df.groupby(by="payment_type").customer_id.nunique().reset_index()
     bypayment_type_df.rename(columns={
         "customer_id": "customer_count"
