@@ -212,8 +212,7 @@ with col1:
 )
 
 plt.title("Perbandingan Jenis Pembayaran")
-plt.axis('equal')  
-plt.show()
+st.pyplot(plt)
 
 with col2:
     # Menghitung jumlah setiap status pesanan
@@ -235,8 +234,7 @@ with col2:
 )
 
 plt.title("Perbandingan Status Pesanan")
-plt.axis('equal') 
-plt.show()
+st.pyplot(plt)
 
 # Menghitung jumlah pelanggan per kota
 customer_city_counts = data_customers['customer_city'].value_counts()
