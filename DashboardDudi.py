@@ -15,18 +15,18 @@ sns.set(style='dark')
 # In[2]:
 
 
-def create_daily_orders_df(df):
-    daily_orders_df = df.resample(rule='D', on='order_purchase_timestamp').agg({
+def create_monthly_orders_df(df):
+    monthly_orders_df = df.resample(rule='M', on='order_purchase_timestamp').agg({
         "order_id": "nunique",
         "price": "sum"
     })
-    daily_orders_df = daily_orders_df.reset_index()
-    daily_orders_df.rename(columns={
+    monthly_orders_df = monthly_orders_df.reset_index()
+    monthly_orders_df.rename(columns={
         "order_id": "order_count",
         "price": "revenue"
     }, inplace=True)
     
-    return daily_orders_df
+    return monthly_orders_df
 
 
 # In[ ]:
@@ -119,7 +119,7 @@ main_df = all_df[(all_df["order_delivered_carrier_date"] >= str(start_date)) &
 # In[ ]:
 
 
-daily_orders_df = create_daily_orders_df(main_df)
+monthly_orders_df = create_monthly_orders_df(main_df)
 sum_order_items_df = create_sum_order_items_df(main_df)
 bycity_df = create_bycity_df(main_df)
 bypayment_type_df = create_by_payment_type_df(main_df)
@@ -139,10 +139,10 @@ st.subheader('Daily Orders')
  
 col1, col2 = st.columns(2)
 with col1:
-    total_orders = daily_orders_df.order_count.sum()
+    total_orders = monthly_orders_df.order_count.sum()
     st.metric("Total orders", value=total_orders)
 with col2:
-    total_revenue = format_currency(daily_orders_df.revenue.sum(), "AUD", locale='es_CO') 
+    total_revenue = format_currency(monthly_orders_df.revenue.sum(), "AUD", locale='es_CO') 
     st.metric("Total Revenue", value=total_revenue)
 # Menggabungkan data order items dengan orders untuk mendapatkan data timestamp
 orders_items = pd.merge(data_order_items, data_orders, on="order_id")
