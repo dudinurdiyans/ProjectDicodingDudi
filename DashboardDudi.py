@@ -53,7 +53,7 @@ def create_bycity_df(df):
 
 
 def create_bypayment_type_df(df):
-    bypayment_type_df = df.groupby(by="gender").customer_id.nunique().reset_index()
+    bypayment_type_df = df.groupby(by="payment_type").customer_id.nunique().reset_index()
     bypayment_type_df.rename(columns={
         "customer_id": "customer_count"
     }, inplace=True)
@@ -307,9 +307,6 @@ top_5_cities = customer_city_counts.head(5)
 other_cities_count = customer_city_counts[5:].sum()  # Jumlah kota lainnya
 top_5_cities['lain-lain'] = other_cities_count  # Menambahkan kategori 'kota lain'
 
-# Menampilkan jumlah pelanggan per kota
-print("Jumlah pelanggan per kota:")
-print(top_5_cities)
 
 # Membuat pie chart
 plt.figure(figsize=(10, 6))
@@ -327,6 +324,8 @@ plt.axis('equal')
 plt.show()
 
 
+st.caption('Copyright (c) Olist 2024. All rights reserved.')
+dataset_df.to_csv("all_data.csv", index=False)
 # In[ ]:
 
 
