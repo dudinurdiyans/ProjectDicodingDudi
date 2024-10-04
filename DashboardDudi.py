@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 from babel.numbers import format_currency
+import geopandas as gpd
+
 sns.set(style='dark')
 
 # Call Data And Cleaning
@@ -193,6 +195,47 @@ ax.tick_params(axis='x', labelsize=15)
  
 st.pyplot(fig)
 
+# Ensure that 'order_purchase_timestamp' is in datetime format
+data_orders['order_purchase_timestamp'] = pd.to_datetime(data_orders['order_purchase_timestamp'])
+
+# Filter orders by start and end date
+filtered_orders = data_orders[(data_orders['order_purchase_timestamp'] >= str(start_date)) & 
+                                (data_orders['order_purchase_timestamp'] <= str(end_date))]
+# Menggabungkan data order items dengan orders untuk mendapatkan data timestamp
+orders_items = pd.merge(data_order_items, filtered_orders, on="order_id")
+
+# Pastikan kolom 'order_purchase_timestamp' ada dan ubah ke format datetime
+orders_items['order_purchase_timestamp'] = pd.to_datetime(orders_items['order_purchase_timestamp'])
+
+# Tambahkan kolom bulan setelah kolom dikonversi ke datetime
+orders_items['purchase_month'] = orders_items['order_purchase_timestamp'].dt.to_period('M')
+
+# Menggabungkan dengan produk dan kategori
+items_products_category = pd.merge(orders_items, data_products, on="product_id")
+
+# Menghitung total penjualan per kategori
+total_sales_per_category = items_products_category.groupby('product_category_name')['price'].sum()
+
+# Mendapatkan 5 kategori produk teratas berdasarkan total penjualan
+top_5_categories = total_sales_per_category.nlargest(5).index
+
+# Memfilter hanya untuk 5 kategori teratas
+filtered_items = items_products_category[items_products_category['product_category_name'].isin(top_5_categories)]
+
+# Menghitung tren penjualan per kategori per bulan untuk 5 kategori teratas
+monthly_sales_top_5 = filtered_items.groupby(['purchase_month', 'product_category_name'])['price'].sum().unstack()
+
+# Plot line chart untuk tren penjualan 5 kategori teratas
+plt.figure(figsize=(12,8))
+monthly_sales_top_5.plot(marker='o')
+plt.xlabel("Bulan")
+plt.ylabel("Total Penjualan")
+plt.xticks(rotation=45)
+plt.grid(True)
+plt.show()
+st.subheader("Tren Penjualan 5 Kategori Produk Teratas Per Bulan")
+st.pyplot(plt)
+
 # Call the function to get the DataFrame
 sum_order_items_df = create_sum_order_items_df(str(start_date),str(end_date))
 # Plot Best & Worst Performing Product
@@ -320,6 +363,35 @@ plt.legend(
 plt.title("Distribusi Customers Berdasarkan 5 Kota Teratas")
 plt.axis('equal')  
 st.pyplot(plt)
+
+# Menghitung jumlah seller per kota
+seller_city_counts = data_sellers['seller_city'].value_counts().reset_index()
+seller_city_counts.columns = ['seller_city', 'count']
+
+# Menggabungkan data geolokasi dengan jumlah seller
+merged_data = pd.merge(data_geolocations, seller_city_counts, left_on='geolocation_city', right_on='seller_city', how='left')
+
+# Mengubah DataFrame menjadi GeoDataFrame
+gdf = gpd.GeoDataFrame(merged_data, geometry=gpd.points_from_xy(merged_data['geolocation_lng'], merged_data['geolocation_lat']))
+
+# Mengatur ukuran plot 
+plt.figure(figsize=(16, 12))  
+
+# Mengambil data peta dunia dari file shapefile 
+world = gpd.read_file('C:/Users/hp/ne_110m_admin_0_countries.shp')
+
+# Membuat plot
+ax = world.plot(color='white', edgecolor='black')
+
+# Menambahkan titik lokasi seller ke peta
+gdf.plot(ax=ax, marker='o', color='red', markersize=gdf['count'].fillna(0) * 2, label='Jumlah Seller')  # Ukuran titik diperkecil lebih lanjut
+
+# Menambahkan label
+plt.title('Peta Penyebaran Seller Berdasarkan Kota')
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
+plt.legend()
+plt.show()
 
 
 st.caption('Copyright (c) Dudee 2024. All rights reserved.')
