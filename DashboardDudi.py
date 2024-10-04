@@ -255,7 +255,7 @@ st.subheader("Customer Detail")
 col1, col2 = st.columns(2)
 with col1:
     # Menghitung jumlah setiap jenis pembayaran
-     payment_counts = orders_payments['payment_type'].value_counts()
+    payment_counts = orders_payments['payment_type'].value_counts()
 
 # Menampilkan persentase setiap jenis pembayaran
     payment_percentage = (payment_counts / payment_counts.sum()) * 100
