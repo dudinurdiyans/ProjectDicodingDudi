@@ -16,7 +16,7 @@ sns.set(style='dark')
 
 
 def create_daily_orders_df(df):
-    daily_orders_df = df.resample(rule='D', on='order_approved_at').agg({
+    daily_orders_df = df.resample(rule='D', on='order_purchase_timestamp').agg({
         "order_id": "nunique",
         "price": "sum"
     })
@@ -33,7 +33,7 @@ def create_daily_orders_df(df):
 
 
 def create_sum_order_items_df(df):
-    sum_order_items_df = df.groupby("product_category_name").quantity_x.sum().sort_values(ascending=False).reset_index()
+    sum_order_items_df = df.groupby("product_category_name").product_photos_qty.sum().sort_values(ascending=False).reset_index()
     return sum_order_items_df
 
 
