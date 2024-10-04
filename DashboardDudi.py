@@ -113,7 +113,7 @@ with st.sidebar:
 
 
 main_df = all_df[(all_df["order_delivered_carrier_date"] >= str(start_date)) & 
-                (all_df["order_delivered_customer_date"] <= str(end_date))]
+                (all_df["order_delivered_carrier_date"] <= str(end_date))]
 
 
 # In[ ]:
@@ -129,13 +129,13 @@ byorderstatus_df = create_byorderstatus_df(main_df)
 # In[ ]:
 
 
-st.header('Dicoding Collection Dashboard :sparkles:')
+st.header('Dashboard Penjualan Dude :sparkles:')
 
 
 # In[ ]:
 
 
-st.subheader('Daily Orders')
+st.subheader('Monthly Orders')
  
 col1, col2 = st.columns(2)
 with col1:
@@ -144,94 +144,48 @@ with col1:
 with col2:
     total_revenue = format_currency(monthly_orders_df.revenue.sum(), "AUD", locale='es_CO') 
     st.metric("Total Revenue", value=total_revenue)
-# Menggabungkan data order items dengan orders untuk mendapatkan data timestamp
-orders_items = pd.merge(data_order_items, data_orders, on="order_id")
-
-# Pastikan kolom 'order_purchase_timestamp' ada dan ubah ke format datetime
-orders_items['order_purchase_timestamp'] = pd.to_datetime(orders_items['order_purchase_timestamp'])
-
-# Tambahkan kolom bulan setelah kolom dikonversi ke datetime
-orders_items['purchase_month'] = orders_items['order_purchase_timestamp'].dt.to_period('M')
-
-# Menggabungkan dengan produk dan kategori
-items_products_category = pd.merge(orders_items, data_products, on="product_id")
-items_products_category = pd.merge(items_products_category, data_product_category_name_translation, on="product_category_name")
-
-# Menghitung total penjualan per kategori
-total_sales_per_category = items_products_category.groupby('product_category_name_english')['price'].sum()
-
-# Mendapatkan 5 kategori produk teratas berdasarkan total penjualan
-top_5_categories = total_sales_per_category.nlargest(5).index
-
-# Memfilter hanya untuk 5 kategori teratas
-filtered_items = items_products_category[items_products_category['product_category_name_english'].isin(top_5_categories)]
-
-# Menghitung tren penjualan per kategori per bulan untuk 5 kategori teratas
-monthly_sales_top_5 = filtered_items.groupby(['purchase_month', 'product_category_name_english'])['price'].sum().unstack()
-
-# Plot line chart untuk tren penjualan 5 kategori teratas
-plt.figure(figsize=(12,8))
-monthly_sales_top_5.plot(marker='o')
-plt.title("Tren Penjualan 5 Kategori Produk Teratas Per Bulan")
-plt.xlabel("Bulan")
-plt.ylabel("Total Penjualan")
-plt.xticks(rotation=45)
-plt.grid(True)
-plt.show()
-
+    
+fig, ax = plt.subplots(figsize=(16, 8))
+ax.plot(
+    monthly_orders_df["order_purchase_timestamp"],
+    monthly_orders_df["order_count"],
+    marker='o', 
+    linewidth=2,
+    color="#000000"
+)
+ax.tick_params(axis='y', labelsize=20)
+ax.tick_params(axis='x', labelsize=15)
+ 
+st.pyplot(fig)
 
 # In[3]:
 
 
 st.subheader("Best & Worst Performing Product")
-# Menggabungkan data items dan produk dengan kategori
-items_products = pd.merge(data_order_items, data_products, on="product_id")
-items_products_category = pd.merge(items_products, data_product_category_name_translation, on="product_category_name")
-
-# Menghitung penjualan per kategori untuk semua kategori
-all_category_sales = items_products_category['product_category_name_english'].value_counts()
-
-# Mengambil 5 kategori dengan jumlah penjualan tertinggi
-top_category_sales = all_category_sales.nlargest(5)
-
-# Menampilkan 5 kategori tertinggi
-print("5 Kategori dengan Penjualan Tertinggi:")
-print(top_category_sales)
-
-# Menggunakan subplots untuk membuat figure dan axes
-fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
-
-# Menggunakan palet warna "viridis" untuk grafik
-sns.barplot(x=top_category_sales.values, y=top_category_sales.index, palette="viridis", ax=ax)
-
-# Menetapkan judul dan label sumbu
-ax.set_title("5 Kategori Produk dengan Penjualan Tertinggi", fontsize=20)
-ax.set_xlabel("Jumlah Penjualan", fontsize=15)
-ax.set_ylabel("Kategori Produk", fontsize=15)
-
-# Menampilkan grafik
-plt.show()
+fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(35, 15))
+ 
+colors = ["#000000", "#C0C0C0", "#C0C0C0", "#C0C0C0", "#C0C0C0"]
+ 
+sns.barplot(x="product_photos_qty", y="product_category_name", data=total_order_items_df.head(5), palette=colors, ax=ax[0])
+ax[0].set_ylabel(None)
+ax[0].set_xlabel("Number of Sales", fontsize=30)
+ax[0].set_title("Best Sales Product Category", loc="center", fontsize=50)
+ax[0].tick_params(axis='y', labelsize=35)
+ax[0].tick_params(axis='x', labelsize=30)
 
 # Plot kedua
 
-# Menghitung penjualan per kategori untuk semua kategori
-all_category_sales = items_products_category['product_category_name_english'].value_counts()
-
-# Mengambil 5 kategori dengan jumlah penjualan terendah dan mengurutkannya secara ascending
-lowest_category_sales = all_category_sales.nsmallest(5)
-
-# Menampilkan 5 kategori terendah
-print("5 Kategori dengan Penjualan Terendah:")
-print(lowest_category_sales)
-
-# Menggunakan subplots untuk membuat figure dan axes
-fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(35, 15))
-
-# Menyortir berdasarkan jumlah penjualan dan memilih 5 kategori terendah
-sorted_lowest_sales = lowest_category_sales.sort_values(ascending=True)
-
-# Menggunakan palet warna "viridis"
-colors = ["#90CAF9", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
+sns.barplot(x="product_photos_qty", y="product_category_name", data=total_order_items_df.sort_values(by="product_photos_qty", ascending=True).head(5), palette=colors, ax=ax[1])
+ax[1].set_ylabel(None)
+ax[1].set_xlabel("Number of Sales", fontsize=30)
+ax[1].invert_xaxis()
+ax[1].yaxis.set_label_position("right")
+ax[1].yaxis.tick_right()
+ax[1].set_title("Worst Sales Product Category", loc="center", fontsize=50)
+ax[1].tick_params(axis='y', labelsize=35)
+ax[1].tick_params(axis='x', labelsize=30)
+ 
+st.pyplot(fig)
 
 # Plot bar chart untuk 5 kategori terendah
 sns.barplot(x=sorted_lowest_sales.values, y=sorted_lowest_sales.index, palette=colors, ax=ax[1])
