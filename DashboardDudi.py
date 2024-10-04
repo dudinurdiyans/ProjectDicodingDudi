@@ -83,9 +83,9 @@ all_df = pd.read_csv("https://raw.githubusercontent.com/dudinurdiyans/ProjectDic
 # In[ ]:
 
 
-datetime_columns = ["order_delivered_carrier_date", "order_delivered_customer_date"]
+datetime_columns = ["order_purchase_timestamp", "order_estimated_delivery_date"]
 all_df.sort_values(by="order_delivered_carrier_date", inplace=True)
-all_df.reset_index(inplace=True)
+
  
 for column in datetime_columns:
     all_df[column] = pd.to_datetime(all_df[column])
@@ -94,8 +94,8 @@ for column in datetime_columns:
 # In[ ]:
 
 
-min_date = all_df["order_delivered_carrier_date"].min()
-max_date = all_df["order_delivered_carrier_date"].max()
+min_date = all_df["order_purchase_timestamp"].min()
+max_date = all_df["order_purchase_timestamp"].max()
  
 with st.sidebar:
     # Menambahkan logo perusahaan
@@ -103,7 +103,7 @@ with st.sidebar:
     
     # Mengambil start_date & end_date dari date_input
     start_date, end_date = st.date_input(
-        label='Rentang Waktu',min_value=min_date,
+        label='Rentang Waktu Penjualan Dudee',min_value=min_date,
         max_value=max_date,
         value=[min_date, max_date]
     )
@@ -112,8 +112,8 @@ with st.sidebar:
 # In[ ]:
 
 
-main_df = all_df[(all_df["order_delivered_carrier_date"] >= str(start_date)) & 
-                (all_df["order_delivered_carrier_date"] <= str(end_date))]
+main_df = all_df[(all_df["order_purchase_timestamp"] >= str(start_date)) & 
+                (all_df["order_purchase_timestamp"] <= str(end_date))]
 
 
 # In[ ]:
@@ -186,21 +186,6 @@ ax[1].tick_params(axis='y', labelsize=35)
 ax[1].tick_params(axis='x', labelsize=30)
  
 st.pyplot(fig)
-
-# Plot bar chart untuk 5 kategori terendah
-sns.barplot(x=sorted_lowest_sales.values, y=sorted_lowest_sales.index, palette=colors, ax=ax[1])
-ax[1].set_ylabel(None)
-ax[1].set_xlabel("Jumlah Penjualan", fontsize=30)
-ax[1].invert_xaxis()  # Membalik sumbu X
-ax[1].yaxis.set_label_position("right")  # Memindahkan label sumbu Y ke kanan
-ax[1].yaxis.tick_right()  # Memindahkan tick sumbu Y ke kanan
-ax[1].set_title("5 Kategori Produk dengan Penjualan Terendah (Descending)", loc="center", fontsize=50)
-ax[1].tick_params(axis='y', labelsize=35)
-ax[1].tick_params(axis='x', labelsize=30)
-
-# Menampilkan grafik
-plt.show()
-
 
 # In[4]:
 
@@ -278,7 +263,7 @@ plt.axis('equal')
 plt.show()
 
 
-st.caption('Copyright (c) Olist 2024. All rights reserved.')
+st.caption('Copyright (c) Dudee 2024. All rights reserved.')
 dataset_df.to_csv("all_data.csv", index=False)
 # In[ ]:
 
