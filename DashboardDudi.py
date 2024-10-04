@@ -77,7 +77,7 @@ def create_byorderstatus_df(df):
 # In[ ]:
 
 
-all_df = pd.read_csv("https://github.com/dudinurdiyans/ProjectDicodingDudi/blob/main/all_data.csv")
+all_df = pd.read_csv("https://raw.githubusercontent.com/dudinurdiyans/ProjectDicodingDudi/refs/heads/main/dashboard/all_data.csv?token=GHSAT0AAAAAACYOFG7TI3NTGMCRWV7QRGD2ZX7TQZA")
 
 
 # In[ ]:
