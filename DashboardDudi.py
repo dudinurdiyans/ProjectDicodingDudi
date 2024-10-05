@@ -380,20 +380,20 @@ gdf = gpd.GeoDataFrame(merged_data, geometry=gpd.points_from_xy(merged_data['geo
 
 # Mengatur ukuran plot 
 plt.figure(figsize=(16, 12))  
-# Step 1: Download the shapefile zip
-url = 'https://naturalearth.s3.amazonaws.com/110m_cultural/ne_110m_admin_0_countries.zip'
-response = requests.get(url)
+# # Step 1: Download the shapefile zip
+# url = 'https://naturalearth.s3.amazonaws.com/110m_cultural/ne_110m_admin_0_countries.zip'
+# response = requests.get(url)
 
-# Step 2: Save the zip file
-zip_path = 'ne_110m_admin_0_countries.zip'
-with open(zip_path, 'wb') as file:
-    file.write(response.content)
+# # Step 2: Save the zip file
+# zip_path = 'ne_110m_admin_0_countries.zip'
+# with open(zip_path, 'wb') as file:
+#     file.write(response.content)
 
-# Step 3: Extract the zip file
-with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-    zip_ref.extractall('ne_110m_admin_0_countries')
+# # Step 3: Extract the zip file
+# with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+#     zip_ref.extractall('ne_110m_admin_0_countries')
 
-# Step 4: Load the shapefile
+# # Step 4: Load the shapefile
 shapefile_path = 'ne_110m_admin_0_countries/ne_110m_admin_0_countries.shp'
 # Mengambil data peta dunia dari file shapefile 
 world = gpd.read_file(shapefile_path)
