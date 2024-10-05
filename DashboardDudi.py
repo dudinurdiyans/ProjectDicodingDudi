@@ -11,6 +11,8 @@ import streamlit as st
 from babel.numbers import format_currency
 import geopandas as gpd
 import os
+
+from shapely import wkt
 os.environ['SHAPE_RESTORE_SHX'] = 'YES'
 
 sns.set(style='dark')
@@ -378,10 +380,12 @@ gdf = gpd.GeoDataFrame(merged_data, geometry=gpd.points_from_xy(merged_data['geo
 
 # Mengatur ukuran plot 
 plt.figure(figsize=(16, 12))  
-shapefile_path = os.path.join('ne_110m_admin_0_countries','ne_110m_admin_0_countries.shp')
-# Mengambil data peta dunia dari file shapefile 
-world = gpd.read_file(shapefile_path)
+# Load the CSV file
+csv_file_path = "https://github.com/dudinurdiyans/ProjectDicodingDudi/blob/main/All%20Data/world.csv?raw=true"  # Replace with your CSV file path
+df = pd.read_csv(csv_file_path)
 
+df['geometry'] = df['geometry'].apply(wkt.loads)
+world = gpd.GeoDataFrame(df, crs='epsg:4326')
 # Membuat plot
 ax = world.plot(color='white', edgecolor='black')
 
@@ -393,6 +397,7 @@ plt.title('Peta Penyebaran Seller Berdasarkan Kota')
 plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 plt.legend()
+plt.show()
 st.pyplot(plt)
 
 st.caption('Copyright (c) Dudee 2024. All rights reserved.')
