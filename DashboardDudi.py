@@ -11,6 +11,8 @@ import streamlit as st
 from babel.numbers import format_currency
 import geopandas as gpd
 import os
+import requests
+import zipfile
 os.environ['SHAPE_RESTORE_SHX'] = 'YES'
 
 sns.set(style='dark')
@@ -378,9 +380,23 @@ gdf = gpd.GeoDataFrame(merged_data, geometry=gpd.points_from_xy(merged_data['geo
 
 # Mengatur ukuran plot 
 plt.figure(figsize=(16, 12))  
+# Step 1: Download the shapefile zip
+url = 'https://naturalearth.s3.amazonaws.com/110m_cultural/ne_110m_admin_0_countries.zip'
+response = requests.get(url)
 
+# Step 2: Save the zip file
+zip_path = 'ne_110m_admin_0_countries.zip'
+with open(zip_path, 'wb') as file:
+    file.write(response.content)
+
+# Step 3: Extract the zip file
+with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+    zip_ref.extractall('ne_110m_admin_0_countries')
+
+# Step 4: Load the shapefile
+shapefile_path = 'ne_110m_admin_0_countries/ne_110m_admin_0_countries.shp'
 # Mengambil data peta dunia dari file shapefile 
-world = gpd.read_file('https://raw.githubusercontent.com/dudinurdiyans/ProjectDicodingDudi/main/All%20Data/ne_110m_admin_0_countries.shp')
+world = gpd.read_file(shapefile_path)
 
 # Membuat plot
 ax = world.plot(color='white', edgecolor='black')
@@ -393,7 +409,7 @@ plt.title('Peta Penyebaran Seller Berdasarkan Kota')
 plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 plt.legend()
-plt.show()
+st.pyplot(plt)
 
 
 st.caption('Copyright (c) Dudee 2024. All rights reserved.')
