@@ -386,8 +386,9 @@ df = pd.read_csv(csv_file_path)
 
 df['geometry'] = df['geometry'].apply(wkt.loads)
 world = gpd.GeoDataFrame(df, crs='epsg:4326')
+brazil = world[world['name'] == 'Brazil']
 # Membuat plot
-ax = world.plot(color='white', edgecolor='black')
+ax = brazil.plot(color='white', edgecolor='black')
 
 # Menambahkan titik lokasi seller ke peta
 gdf.plot(ax=ax, marker='o', color='red', markersize=gdf['count'].fillna(0) * 2, label='Jumlah Seller')  # Ukuran titik diperkecil lebih lanjut
