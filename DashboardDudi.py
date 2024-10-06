@@ -368,42 +368,6 @@ plt.title("Distribusi Customers Berdasarkan 5 Kota Teratas")
 plt.axis('equal')  
 st.pyplot(plt)
 
-# Menghitung jumlah seller per kota
-seller_city_counts = data_sellers['seller_city'].value_counts().reset_index()
-seller_city_counts.columns = ['seller_city', 'count']
-
-# Menggabungkan data geolokasi dengan jumlah seller
-merged_data = pd.merge(data_geolocations, seller_city_counts, left_on='geolocation_city', right_on='seller_city', how='left')
-
-# Mengubah DataFrame menjadi GeoDataFrame
-gdf = gpd.GeoDataFrame(merged_data, geometry=gpd.points_from_xy(merged_data['geolocation_lng'], merged_data['geolocation_lat']))
-
-# Mengatur ukuran plot 
-plt.figure(figsize=(16, 12))  
-# Load the CSV file
-csv_file_path = "https://github.com/dudinurdiyans/ProjectDicodingDudi/blob/main/All%20Data/world.csv?raw=true"  # Replace with your CSV file path
-df = pd.read_csv(csv_file_path)
-
-df['geometry'] = df['geometry'].apply(wkt.loads)
-world = gpd.GeoDataFrame(df, crs='epsg:4326')
-brazil = world[world['name'] == 'Brazil']
-# Membuat plot
-ax = brazil.plot(color='white', edgecolor='black')
-
-# Menambahkan titik lokasi seller ke peta
-gdf.plot(ax=ax, marker='o', color='red', markersize=gdf['count'].fillna(0) * 2, label='Jumlah Seller')  # Ukuran titik diperkecil lebih lanjut
-
-# Menambahkan label
-plt.title('Peta Penyebaran Seller Berdasarkan Kota')
-plt.xlabel('Longitude')
-plt.ylabel('Latitude')
-plt.legend()
-plt.show()
-st.pyplot(plt)
-
-st.caption('Copyright (c) Dudee 2024. All rights reserved.')
-# dataset_df.to_csv("all_data.csv", index=False)
-# In[ ]:
 
 
 
